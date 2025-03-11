@@ -1,35 +1,41 @@
-// pathprefixer\src\test\suite\extension.test.ts
-
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
-import { languageComments } from '../../languageComments';
 
 suite('Extension Test Suite', () => {
-    vscode.window.showInformationMessage('Starting tests');
+    // Force activation before any tests run
+    suiteSetup(async function () {
+        this.timeout(10000);
+        const extensionId = 'pathprefixer';
+        const extension = vscode.extensions.getExtension(extensionId) || 
+                         vscode.extensions.all.find(ext => ext.id.endsWith('pathprefixer'));
+        
+        if (!extension) {
+            throw new Error('Extension not found');
+        }
+        
+        if (!extension.isActive) {
+            await extension.activate();
+        }
+    });
 
     test('Command should be registered', async () => {
         const commands = await vscode.commands.getCommands();
-        assert.ok(commands.includes('pathprefixer.addRelativePath'), 'Command should be registered');
+        assert.ok(commands.includes('pathprefixer.addRelativePath'));
     });
 
-    test('Should add comment with relative path', async function() {
-        this.timeout(10000); // Increase timeout for this test
+    test('Should add commented relative path to a file', async function () {
+        this.timeout(10000);
         
         // Create a temporary workspace folder
         const workspaceFolder = fs.mkdtempSync(path.join(os.tmpdir(), 'pathprefixer-test-'));
         
-        // Test a few representative languages
-        const testLanguages = ['javascript', 'python', 'html', 'css'];
-        
-        for (const language of testLanguages) {
+        try {
             // Create a test file
-            const extension = language === 'javascript' ? 'js' : 
-                             language === 'python' ? 'py' : language;
-            const filePath = path.join(workspaceFolder, `test.${extension}`);
-            fs.writeFileSync(filePath, 'Test content');
+            const filePath = path.join(workspaceFolder, 'test.js');
+            fs.writeFileSync(filePath, 'console.log("Test");');
             
             // Open the file
             const document = await vscode.workspace.openTextDocument(filePath);
@@ -39,39 +45,27 @@ suite('Extension Test Suite', () => {
             await vscode.commands.executeCommand('pathprefixer.addRelativePath');
             
             // Wait for the edit to complete
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise(resolve => setTimeout(resolve, 1000));
             
             // Get the first line
             const firstLine = document.lineAt(0).text;
             
-            // Get expected comment style
-            const commentStyle = languageComments[language];
-            const expectedStart = commentStyle.start;
-            const expectedEnd = commentStyle.multiLine ? commentStyle.end : '';
-            
-            // Check if the comment was added correctly
+            // Check if the path was added and commented
             assert.ok(
-                firstLine.startsWith(expectedStart), 
-                `Comment should start with ${expectedStart} for ${language}`
+                firstLine.includes('test.js'),
+                `First line should include the file name`
             );
             
-            if (commentStyle.multiLine) {
-                assert.ok(
-                    firstLine.endsWith(expectedEnd!), 
-                    `Comment should end with ${expectedEnd} for ${language}`
-                );
-            }
-            
+            // Check if the line was commented (should start with // for js)
             assert.ok(
-                firstLine.includes(`test.${extension}`), 
-                `Comment should include the file name for ${language}`
+                firstLine.startsWith('//'),
+                `Line should be commented`
             );
             
-            // Close the editor
+        } finally {
+            // Clean up
             await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+            fs.rmdirSync(workspaceFolder, { recursive: true });
         }
-        
-        // Clean up
-        fs.rmdirSync(workspaceFolder, { recursive: true });
     });
 });

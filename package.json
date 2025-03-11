@@ -1,8 +1,9 @@
 {
   "name": "pathprefixer",
   "displayName": "PathPrefixer",
-  "description": "This extension helps you quickly add the relative path of the current file in the first line as a comment. Supports 40+ programming languages with appropriate comment syntax for each language.",
+  "description": "Quickly add the relative path of the current file as a comment to the first line.",
   "version": "0.0.1",
+  "publisher": "MrShootingStar",
   "engines": {
     "vscode": "^1.98.0"
   },
@@ -20,7 +21,7 @@
     "commands": [
       {
         "command": "pathprefixer.addRelativePath",
-        "title": "Add Relative Path Comment"
+        "title": "PathPrefixer: Add Relative Path"
       }
     ],
     "keybindings": [
@@ -37,25 +38,6 @@
           "group": "modification"
         }
       ]
-    },
-    "configuration": {
-      "title": "PathPrefixer",
-      "properties": {
-        "pathprefixer.includeAttribution": {
-          "type": "boolean",
-          "default": true,
-          "description": "Include '-- added by PathPrefixer' in the comment"
-        },
-        "pathprefixer.defaultBaseDirectory": {
-          "type": "string",
-          "enum": [
-            "workspace",
-            "parent"
-          ],
-          "default": "workspace",
-          "description": "Default base directory for computing relative paths"
-        }
-      }
     }
   },
   "scripts": {
@@ -67,7 +49,7 @@
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
     "lint": "eslint src",
-    "test": "vscode-test",
+    "test": "vscode-test --bail",
     "make-vsix": "vsce package --no-dependencies"
   },
   "devDependencies": {
