@@ -50,7 +50,8 @@
     "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
     "lint": "eslint src",
     "test": "vscode-test --bail",
-    "make-vsix": "vsce package --no-dependencies"
+    "make-vsix": "vsce package --no-dependencies",
+    "build": "pnpm run package"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
