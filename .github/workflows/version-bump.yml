@@ -1,0 +1,46 @@
+name: Automatic Version Bump
+
+on:
+  # Triggers when pushing to main or a branch named 'release/*'
+  push:
+    branches:
+      - main
+      - 'release/*'
+  # Allows manual trigger from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Check out your repository
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      # 2. Set up Node.js
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      # 3. Install PNPM
+      - name: Install PNPM
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8  # pick a version that aligns with your local env
+
+      # 4. Install dependencies
+      - name: Install dependencies
+        run: pnpm install
+
+      # 5. Bump the version in package.json & create a new Git tag
+      - name: Bump version
+        run: |
+          # 'patch' is default if you want small bumps. 
+          # Use 'minor' or 'major' based on your release strategy.
+          pnpm version patch
+
+      # 6. Push the commit and tag back to the repository
+      - name: Push changes
+        run: |
+          git push --follow-tags
