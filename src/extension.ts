@@ -1,5 +1,3 @@
-// src\extension.ts
-
 import * as vscode from 'vscode';
 import * as path from 'path';
 
@@ -18,8 +16,18 @@ async function addRelativePath() {
     const basePath = workspaceFolder ? workspaceFolder.uri.fsPath : path.dirname(filePath);
 
     // Calculate relative path
-    const relativePath = path.relative(basePath, filePath);
-    console.log(`Adding relative path: ${relativePath}`);
+    let relativePath = path.relative(basePath, filePath);
+    // Normalize slashes to forward slashes
+    relativePath = relativePath.replace(/\\/g, '/');
+
+    // Check if the first line already contains the relative path
+    let firstLine = document.lineAt(0).text;
+    firstLine = firstLine.replace(/\\/g, '/');
+
+    if (firstLine.includes(relativePath)) {
+        vscode.window.showInformationMessage('PathPrefixer: The relative path is already present.');
+        return;
+    }
 
     // Insert the relative path at the beginning of the file
     await editor.edit(editBuilder => {
@@ -31,32 +39,16 @@ async function addRelativePath() {
     
     // Use VS Code's native comment command
     await vscode.commands.executeCommand('editor.action.commentLine');
-    
-    // Save the document
-    await document.save();
-    
-    return true;
+    // (No success toast shown here)
 }
-
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('PathPrefixer extension is now active');
 
-    // Log all registered commands to verify
-    vscode.commands.getCommands().then(commands => {
-        console.log('Available commands:', commands);
-    });
-
-    // Register the command and make sure it's properly added to subscriptions
     const disposable = vscode.commands.registerCommand('pathprefixer.addRelativePath', addRelativePath);
     context.subscriptions.push(disposable);
-
-    // Verify registration
-    vscode.commands.getCommands().then(commands => {
-        console.log('Commands after registration:', commands);
-        console.log('Our command registered:', commands.includes('pathprefixer.addRelativePath'));
-    });
 }
 
-export function deactivate() { }
+export function deactivate() {}
+
 export const EXTENSION_ID = 'pathprefixer';
