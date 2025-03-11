@@ -6,11 +6,16 @@
   "engines": {
     "vscode": "^1.98.0"
   },
+  "license": "MIT",
   "categories": [
     "Other"
   ],
   "activationEvents": [],
   "main": "./dist/extension.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrshootingstar/pathprefixer.git"
+  },
   "contributes": {
     "commands": [
       {
