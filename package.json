@@ -2,7 +2,7 @@
   "name": "pathprefixer",
   "displayName": "PathPrefixer",
   "description": "Quickly add the relative path of the current file as a comment to the first line.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "MrShootingStar",
   "engines": {
     "vscode": "^1.98.0"
