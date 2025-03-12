@@ -48,13 +48,14 @@ jobs:
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}   # ← Provide the token here
           tag_name: ${{ github.ref }}
           release_name: ${{ github.ref }}
+          body: "Check out the .vsix file below!"
           draft: false
           prerelease: false
-          body: "Check out the .vsix file below!"
 
       # 9. Upload your packaged .vsix as a Release asset
       - name: Upload Release Asset
