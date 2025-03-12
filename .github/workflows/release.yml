@@ -1,0 +1,66 @@
+name: Build, Test, and Release
+
+on:
+  # This workflow will run whenever you push a tag of the form "v*"
+  push:
+    tags:
+      - 'v*'
+  # Allows you to manually trigger the workflow from the GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Check out the latest code
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      # 2. Set up Node.js (it’s helpful to specify a Node version)
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      # 3. Install PNPM
+      - name: Set up PNPM
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8  # Specify a version (e.g., 8 or 7) that matches your environment
+
+      # 4. Install dependencies
+      - name: Install dependencies
+        run: pnpm install
+
+      # 5. Build the extension
+      - name: Build
+        run: pnpm run build
+
+      # 6. Run tests (optional, remove if none exist)
+      - name: Test
+        run: pnpm run test
+
+      # 7. Package the extension (makes the .vsix)
+      - name: Make VSIX
+        run: pnpm run make-vsix
+
+      # 8. Create a GitHub Release (using the pushed tag as release name)
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
+          body: "Check out the .vsix file below!"
+
+      # 9. Upload your packaged .vsix as a Release asset
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: 'pathprefixer-*.vsix'  # If it’s named differently, adjust here
+          asset_name: 'pathprefixer-X.X.X.vsix'  
+          asset_content_type: application/octet-stream
