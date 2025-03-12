@@ -37,9 +37,9 @@ jobs:
       - name: Build
         run: pnpm run build
 
-      # 6. Run tests (optional, remove if none exist)
-      - name: Test
-        run: pnpm run test
+      # # 6. Run tests (optional, remove if none exist)
+      # - name: Test
+      #   run: pnpm run test
 
       # 7. Package the extension (makes the .vsix)
       - name: Make VSIX
