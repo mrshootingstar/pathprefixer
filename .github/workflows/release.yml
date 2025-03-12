@@ -45,11 +45,11 @@ jobs:
       - name: Make VSIX
         run: pnpm run make-vsix
 
-      # 8. Create a GitHub Release (using the pushed tag as release name)
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}   # ← Provide the token here
           tag_name: ${{ github.ref }}
           release_name: ${{ github.ref }}
           draft: false
