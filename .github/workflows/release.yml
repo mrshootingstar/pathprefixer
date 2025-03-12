@@ -17,7 +17,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
-      # 2. Set up Node.js (it’s helpful to specify a Node version)
+      # 2. Set up Node.js (it's helpful to specify a Node version)
       - name: Set up Node
         uses: actions/setup-node@v3
         with:
@@ -45,23 +45,13 @@ jobs:
       - name: Make VSIX
         run: pnpm run make-vsix
 
+      # 8. Create GitHub Release (FIXED)
       - name: Create GitHub Release
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
+          files: 'pathprefixer-*.vsix'
+          name: ${{ github.ref_name }}
           body: "Check out the .vsix file below!"
           draft: false
           prerelease: false
-
-      # 9. Upload your packaged .vsix as a Release asset
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: 'pathprefixer-*.vsix'  # If it’s named differently, adjust here
-          asset_name: 'pathprefixer-X.X.X.vsix'  
-          asset_content_type: application/octet-stream
